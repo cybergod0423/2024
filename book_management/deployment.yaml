@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-management-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-management-api
+  template:
+    metadata:
+      labels:
+        app: book-management-api
+    spec:
+      containers:
+        - name: book-management-api
+          image: book_management_app:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://user:password@localhost:5432/book_management_db"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-management-api-service
+spec:
+  selector:
+    app: book-management-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: NodePort
